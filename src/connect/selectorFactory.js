@@ -1,6 +1,8 @@
 import verifySubselectors from './verifySubselectors'
 
 export function impureFinalPropsSelectorFactory(
+  // mapStateToProps => mapToPropsProxy ;see: /src/connect/wrapMapToProps
+  // mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
   mapStateToProps,
   mapDispatchToProps,
   mergeProps,
@@ -16,8 +18,15 @@ export function impureFinalPropsSelectorFactory(
 }
 
 export function pureFinalPropsSelectorFactory(
+  // mapStateToProps => mapToPropsProxy ;see: /src/connect/wrapMapToProps
+  // mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
   mapStateToProps,
+  // mapStateToProps => mapToPropsProxy ;see: /src/connect/wrapMapToProps
+  // mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
+  // mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
   mapDispatchToProps,
+  //  defaultMergeProps see: /src/connect/mergeProps
+  //  mergeProps => see: /src/connect/mergeProps
   mergeProps,
   dispatch,
   { areStatesEqual, areOwnPropsEqual, areStatePropsEqual }
@@ -101,8 +110,18 @@ export default function finalPropsSelectorFactory(
   dispatch,
   { initMapStateToProps, initMapDispatchToProps, initMergeProps, ...options }
 ) {
+  // initMapStateToProps
+  // function  => initProxySelector; mapStateToProps => mapToPropsProxy ;see: /src/connect/wrapMapToProps
+  // missing => initConstantSelector;  mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
   const mapStateToProps = initMapStateToProps(dispatch, options)
+  // initMapDispatchToProps
+  // function => initProxySelector; mapStateToProps => mapToPropsProxy ;see: /src/connect/wrapMapToProps
+  // missing => initConstantSelector; mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
+  // object => initConstantSelector; mapStateToProps => constantSelector; see: /src/connect/wrapMapToProps
   const mapDispatchToProps = initMapDispatchToProps(dispatch, options)
+  // initMergeProps
+  // omit =>  defaultMergeProps; defaultMergeProps see: /src/connect/mergeProps
+  // function => initMergePropsProxy; mergeProps => see: /src/connect/mergeProps
   const mergeProps = initMergeProps(dispatch, options)
 
   if (process.env.NODE_ENV !== 'production') {
@@ -117,7 +136,8 @@ export default function finalPropsSelectorFactory(
   const selectorFactory = options.pure
     ? pureFinalPropsSelectorFactory
     : impureFinalPropsSelectorFactory
-
+  // selectorFactory => pureFinalPropsSelector or impureFinalPropsSelector
+  // return handleSubsequentCalls or handleFirstCall
   return selectorFactory(
     mapStateToProps,
     mapDispatchToProps,

@@ -105,6 +105,7 @@ export default function connectAdvanced(
 
     const displayName = getDisplayName(wrappedComponentName)
 
+    // will be passed to selector factory
     const selectorFactoryOptions = {
       ...connectOptions,
       getDisplayName,
@@ -119,43 +120,48 @@ export default function connectAdvanced(
 
     const { pure } = connectOptions
 
-    let OuterBaseComponent = Component
-    let FinalWrappedComponent = WrappedComponent
+    let OuterBaseComponent = Component // react component
+    let FinalWrappedComponent = WrappedComponent // your component
 
     if (pure) {
-      OuterBaseComponent = PureComponent
+      OuterBaseComponent = PureComponent // react pure component
     }
-
+    // a props selector
     function makeDerivedPropsSelector() {
       let lastProps
       let lastState
       let lastDerivedProps
       let lastStore
       let sourceSelector
-
+      // used to generate props when props and state change or store change
       return function selectDerivedProps(state, props, store) {
+        // props and state has not change
         if (pure && lastProps === props && lastState === state) {
           return lastDerivedProps
         }
-
+        // store change
         if (store !== lastStore) {
           lastStore = store
+          // selectorFactory always be the defaultSelectorFactory see: /src/connect/selectoryFactory
+          // create a pros generator
+          // sourceSelector => handleSubsequentCalls or handleFirstCall see: /src/connect/selectoryFactory
           sourceSelector = selectorFactory(
             store.dispatch,
+            // containes initMapStateToProps, initMapDispatchToProps and initMergeProps e.t.c
             selectorFactoryOptions
           )
         }
 
         lastProps = props
         lastState = state
-
+        // generate props according state and props
         const nextProps = sourceSelector(state, props)
 
         lastDerivedProps = nextProps
         return lastDerivedProps
       }
     }
-
+    // a element selector
     function makeChildElementSelector() {
       let lastChildProps, lastForwardRef, lastChildElement
 
@@ -172,6 +178,7 @@ export default function connectAdvanced(
       }
     }
 
+    // define a component
     class Connect extends OuterBaseComponent {
       constructor(props) {
         super(props)
@@ -180,11 +187,14 @@ export default function connectAdvanced(
           'Passing redux store in props has been removed and does not do anything. ' +
             customStoreWarningMessage
         )
+        // props selector -- used to genreate props when state and props change or store change
         this.selectDerivedProps = makeDerivedPropsSelector()
+        // element selector -- selectChildElement
         this.selectChildElement = makeChildElementSelector()
+        // render method
         this.renderWrappedComponent = this.renderWrappedComponent.bind(this)
       }
-
+      // this value are provided by the provider's state
       renderWrappedComponent(value) {
         invariant(
           value,
@@ -194,7 +204,7 @@ export default function connectAdvanced(
             `React context consumer to ${displayName} in connect options.`
         )
         const { storeState, store } = value
-
+        // props recieved
         let wrapperProps = this.props
         let forwardedRef
 

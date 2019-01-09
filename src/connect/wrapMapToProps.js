@@ -42,7 +42,8 @@ export function wrapMapToPropsFunc(mapToProps, methodName) {
   return function initProxySelector(dispatch, { displayName }) {
     const proxy = function mapToPropsProxy(stateOrDispatch, ownProps) {
       return proxy.dependsOnOwnProps
-        ? proxy.mapToProps(stateOrDispatch, ownProps)
+        ? /** used in mapDispatch to props */
+          proxy.mapToProps(stateOrDispatch, ownProps)
         : proxy.mapToProps(stateOrDispatch)
     }
 
@@ -53,10 +54,14 @@ export function wrapMapToPropsFunc(mapToProps, methodName) {
       stateOrDispatch,
       ownProps
     ) {
+      // re-write mapToProps
       proxy.mapToProps = mapToProps
+      // re-write dependsOnOwnProps
       proxy.dependsOnOwnProps = getDependsOnOwnProps(mapToProps)
       let props = proxy(stateOrDispatch, ownProps)
-
+      // re-write mapToProps
+      // re-write dependsOnOwnProps
+      // will be used in mapDispatch to props
       if (typeof props === 'function') {
         proxy.mapToProps = props
         proxy.dependsOnOwnProps = getDependsOnOwnProps(props)

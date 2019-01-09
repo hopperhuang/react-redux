@@ -63,16 +63,23 @@ export function createConnect({
       ...extraOptions
     } = {}
   ) {
+    // function  => initProxySelector
+    // missing => initConstantSelector
     const initMapStateToProps = match(
       mapStateToProps,
       mapStateToPropsFactories,
       'mapStateToProps'
     )
+    // function => initProxySelector
+    // missing => initConstantSelector
+    // objectt => initConstantSelector
     const initMapDispatchToProps = match(
       mapDispatchToProps,
       mapDispatchToPropsFactories,
       'mapDispatchToProps'
     )
+    // omit =>  defaultMergeProps
+    // function => initMergePropsProxy
     const initMergeProps = match(mergeProps, mergePropsFactories, 'mergeProps')
 
     return connectHOC(selectorFactory, {

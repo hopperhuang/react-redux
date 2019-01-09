@@ -27,6 +27,7 @@ class Provider extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.store !== prevProps.store) {
+      // store change, recieve new store from props
       if (this.unsubscribe) this.unsubscribe()
 
       this.subscribe()
